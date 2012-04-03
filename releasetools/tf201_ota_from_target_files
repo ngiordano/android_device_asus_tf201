@@ -52,10 +52,6 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
   -a  (--aslr_mode)  <on|off>
       Specify whether to turn on ASLR for the package (on by default).
 
-  --backup <boolean>
-      Enable or disable the execution of backuptool.sh.
-      Disabled by default.
-
   --configid <boolean>
      Enable or disable the execution of modelid_cfg.sh.
       Enabled by default.
@@ -99,7 +95,6 @@ OPTIONS.omit_prereq = False
 OPTIONS.extra_script = None
 OPTIONS.aslr_mode = True
 OPTIONS.worker_threads = 3
-OPTIONS.backuptool = False
 OPTIONS.modelidcfg = True
 OPTIONS.override_device = 'auto'
 
@@ -406,8 +401,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   AppendAssertions(script, input_zip)
   script.UnmountAll()
   device_specific.FullOTA_Assertions()
-  if OPTIONS.backuptool:
-    script.RunBackup("backup")
 
   script.ShowProgress(0.5, 0)
 
@@ -439,10 +432,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   common.ZipWriteStr(output_zip, "boot.blob", blob.data)
   script.ShowProgress(0.2, 0)
-
-  if OPTIONS.backuptool:
-    script.ShowProgress(0.2, 10)
-    script.RunBackup("restore")
 
   if OPTIONS.modelidcfg:
     script.RunConfig("")
@@ -788,8 +777,6 @@ def main(argv):
         OPTIONS.aslr_mode = False
     elif o in ("--worker_threads"):
       OPTIONS.worker_threads = int(a)
-    elif o in ("--backup"):
-      OPTIONS.backuptool = bool(a.lower() == 'true')
     elif o in ("--configid"):
       OPTIONS.modelidcfg = bool(a.lower() == 'true')
     elif o in ("--override_device"):
@@ -808,7 +795,6 @@ def main(argv):
                                               "extra_script=",
                                               "worker_threads=",
                                               "aslr_mode=",
-                                              "backup=",
                                               "override_device="],
                              extra_option_handler=option_handler)
 
